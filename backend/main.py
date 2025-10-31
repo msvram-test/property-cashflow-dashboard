@@ -1,8 +1,12 @@
 import os
+import sys
 from fastapi import FastAPI
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
+
+# Ensure backend module discoverability
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Load environment variables
 load_dotenv()
@@ -35,6 +39,10 @@ try:
     db_connection_status = "connected"
 except Exception as e:
     db_connection_status = f"connection_failed: {e}"
+
+@app.get("/")
+def root():
+    return {"status": "running"}
 
 @app.get("/health")
 def health_check():
