@@ -42,11 +42,19 @@ except Exception as e:
 
 @app.get("/")
 def root():
-    return {"status": "running"}
+    return {
+        "status": "running",
+        "message": "Property CashFlow Dashboard Backend is live on Render",
+        "routes": ["/", "/health"]
+    }
 
 @app.get("/health")
 def health_check():
-    return {"status": "ok", "mongodb": db_connection_status}
+    return {
+        "status": "ok",
+        "mongodb": db_connection_status,
+        "service": "Property CashFlow Dashboard API"
+    }
 
 if __name__ == "__main__":
     import uvicorn
