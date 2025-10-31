@@ -56,6 +56,10 @@ def health_check():
         "service": "Property CashFlow Dashboard API"
     }
 
+# Import and include authentication router
+from routers import auth_router
+app.include_router(auth_router.router)
+
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))
