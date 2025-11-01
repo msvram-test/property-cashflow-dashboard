@@ -4,13 +4,13 @@ from bson import ObjectId
 from typing import List
 
 from models.property_model import PropertyModel, PropertyCreate, UpdatePropertyModel
-from backend.utils.auth_utils import get_current_user
+from utils.auth_utils import get_current_user
 from datetime import datetime
 import os
 
 router = APIRouter(prefix="/properties", tags=["Properties"])
 
-from backend.main import mongo_client
+from main import mongo_client
 
 DB_NAME = os.getenv("DB_NAME", "property_management")
 db = mongo_client[DB_NAME]
