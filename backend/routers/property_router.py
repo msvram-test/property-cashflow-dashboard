@@ -3,7 +3,7 @@ from pymongo import MongoClient
 from bson import ObjectId
 from typing import List
 
-from backend.models.property_model import PropertyModel, PropertyCreate, UpdatePropertyModel
+from models.property_model import PropertyModel, PropertyCreate, UpdatePropertyModel
 from backend.utils.auth_utils import get_current_user
 from datetime import datetime
 import os
