@@ -9,7 +9,7 @@ from utils.auth_utils import hash_password, verify_password, create_access_token
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 # Use shared MongoDB client from main.py
-from backend.main import mongo_client
+from main import mongo_client
 
 DB_NAME = os.getenv("DB_NAME", "property_management")
 db = mongo_client[DB_NAME]
