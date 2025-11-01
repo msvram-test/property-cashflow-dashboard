@@ -16,6 +16,10 @@ MONGODB_USERNAME = os.getenv("MONGODB_USERNAME")
 MONGODB_PASSWORD = os.getenv("MONGODB_PASSWORD")
 MONGODB_API_VERSION = os.getenv("MONGODB_API_VERSION")
 
+# Clean up MONGODB_URI - strip quotes and whitespace if present
+if MONGODB_URI:
+    MONGODB_URI = MONGODB_URI.strip().strip('"').strip("'")
+
 app = FastAPI(title="Property CashFlow Dashboard API", version="1.0.0")
 
 # Enable CORS for local frontend
@@ -35,12 +39,25 @@ app.add_middleware(
 
 # Initialize MongoDB client
 try:
-    mongo_client = MongoClient(
-        MONGODB_URI,
-        username=MONGODB_USERNAME,
-        password=MONGODB_PASSWORD,
-        serverSelectionTimeoutMS=5000
-    )
+    if not MONGODB_URI:
+        raise ValueError("MONGODB_URI environment variable is not set")
+    
+    # If URI contains credentials (has @ symbol after the scheme), use it directly
+    # Otherwise, use username and password parameters
+    if "@" in MONGODB_URI and (MONGODB_URI.startswith("mongodb://") or MONGODB_URI.startswith("mongodb+srv://")):
+        # URI already contains credentials, don't pass username/password separately
+        mongo_client = MongoClient(
+            MONGODB_URI,
+            serverSelectionTimeoutMS=5000
+        )
+    else:
+        # URI doesn't contain credentials, use username/password parameters
+        mongo_client = MongoClient(
+            MONGODB_URI,
+            username=MONGODB_USERNAME,
+            password=MONGODB_PASSWORD,
+            serverSelectionTimeoutMS=5000
+        )
     mongo_client.server_info()
     db_connection_status = "connected"
 except Exception as e:

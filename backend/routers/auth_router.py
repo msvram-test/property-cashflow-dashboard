@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException, Depends, status, Header
-from pymongo import MongoClient
 from datetime import timedelta
 from jose import JWTError
 import os
@@ -9,15 +8,11 @@ from utils.auth_utils import hash_password, verify_password, create_access_token
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-# Database setup
-MONGODB_URI = os.getenv("MONGODB_URI")
-MONGODB_USERNAME = os.getenv("MONGODB_USERNAME")
-MONGODB_PASSWORD = os.getenv("MONGODB_PASSWORD")
+# Use shared MongoDB client from main.py
+from backend.main import mongo_client
 
-client = MongoClient(
-    MONGODB_URI, username=MONGODB_USERNAME, password=MONGODB_PASSWORD, serverSelectionTimeoutMS=5000
-)
-db = client.get_default_database()
+DB_NAME = os.getenv("DB_NAME", "property_management")
+db = mongo_client[DB_NAME]
 users_collection = db["users"]
 
 @router.post("/register", response_model=dict)
