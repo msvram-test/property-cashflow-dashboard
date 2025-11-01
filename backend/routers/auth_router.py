@@ -38,7 +38,8 @@ def login(user: UserCreate):
     if not db_user or not verify_password(user.password, db_user["hashed_password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     access_token = create_access_token(
-        data={"sub": user.email}, expires_delta=timedelta(minutes=60)
+        data={"_id": str(db_user["_id"]), "email": db_user["email"]},
+        expires_delta=timedelta(minutes=60)
     )
     return {"access_token": access_token, "token_type": "bearer"}
 

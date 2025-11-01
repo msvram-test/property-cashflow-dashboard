@@ -63,8 +63,9 @@ def health_check():
     }
 
 # Import and include authentication router
-from routers import auth_router
+from routers import auth_router, property_router
 app.include_router(auth_router.router)
+app.include_router(property_router.router)
 
 if __name__ == "__main__":
     import uvicorn

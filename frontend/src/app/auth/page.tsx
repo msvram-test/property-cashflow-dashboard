@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
 // Get API base URL - Next.js client components need NEXT_PUBLIC_ prefix
@@ -9,6 +10,7 @@ const API_BASE = typeof window !== 'undefined'
   : 'http://localhost:8000';
 
 export default function AuthPage() {
+  const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -40,9 +42,13 @@ export default function AuthPage() {
         const { data } = await axios.post(url, requestData, {
           headers: { 'Content-Type': 'application/json' }
         });
-        localStorage.setItem('token', data.access_token);
+        localStorage.setItem('access_token', data.access_token);
         setMessage('Login successful!');
         setMessageType('success');
+        // Redirect to properties page after successful login
+        setTimeout(() => {
+          router.push('/properties');
+        }, 500);
       } else {
         const res = await axios.post(url, requestData, {
           headers: { 'Content-Type': 'application/json' }
