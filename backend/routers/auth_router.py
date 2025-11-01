@@ -29,7 +29,7 @@ def register(user: UserCreate):
     hashed_pw = hash_password(user.password)
     new_user = UserInDB(email=user.email, hashed_password=hashed_pw)
     users_collection.insert_one(user_to_dict(new_user))
-    return {"message": "User registered successfully"}
+    return {"message": f"User {user.email} registered successfully!"}
 
 @router.post("/login", response_model=dict)
 def login(user: UserCreate):

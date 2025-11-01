@@ -1,31 +1,110 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+// Get API base URL - Next.js client components need NEXT_PUBLIC_ prefix
+const API_BASE = typeof window !== 'undefined' 
+  ? (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000')
+  : 'http://localhost:8000';
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
+
+  // Log API configuration on mount
+  React.useEffect(() => {
+    console.log('=== API Configuration ===');
+    console.log('API_BASE:', API_BASE);
+    console.log('NEXT_PUBLIC_API_BASE_URL:', process.env.NEXT_PUBLIC_API_BASE_URL);
+    console.log('Window location:', typeof window !== 'undefined' ? window.location.href : 'N/A');
+    console.log('========================');
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setMessage(''); // Clear previous messages
+    setMessageType(''); // Clear message type
+    const requestData = { email: email.trim(), password };
+    const url = isLogin ? `${API_BASE}/auth/login` : `${API_BASE}/auth/register`;
+    
     try {
+      console.log('Making request to:', url);
+      console.log('API_BASE:', API_BASE);
+      console.log('Sending request data:', { email: requestData.email, passwordLength: requestData.password.length });
+      
       if (isLogin) {
-        const { data } = await axios.post(`${API_BASE}/auth/login`, { email, password });
+        const { data } = await axios.post(url, requestData, {
+          headers: { 'Content-Type': 'application/json' }
+        });
         localStorage.setItem('token', data.access_token);
         setMessage('Login successful!');
+        setMessageType('success');
       } else {
-        const res = await axios.post(`${API_BASE}/auth/register`, { email, password });
+        const res = await axios.post(url, requestData, {
+          headers: { 'Content-Type': 'application/json' }
+        });
+        console.log('Registration response:', res.data); // Debug log
         const successMsg = res.data?.message || 'User registered successfully! Please log in.';
         setMessage(successMsg);
-        setIsLogin(true);
+        setMessageType('success');
+        // Clear form fields
+        setEmail('');
+        setPassword('');
+        // Switch to login after a short delay to show the message
+        setTimeout(() => {
+          setIsLogin(true);
+        }, 2000);
       }
     } catch (e: any) {
-      setMessage(e.response?.data?.detail || 'An error occurred.');
+      // Comprehensive error logging
+      console.error('=== REQUEST ERROR ===');
+      console.error('Error object:', e);
+      console.error('Error message:', e.message);
+      console.error('Error code:', e.code);
+      console.error('Response status:', e.response?.status);
+      console.error('Response data:', e.response?.data);
+      console.error('Full response:', JSON.stringify(e.response?.data, null, 2));
+      console.error('Request URL:', e.config?.url);
+      console.error('Request data sent:', requestData);
+      console.error('====================');
+      
+      let errorMsg = 'An error occurred.';
+      if (e.code === 'ERR_NETWORK' || e.message === 'Network Error') {
+        errorMsg = `Cannot connect to backend at ${API_BASE}. Please ensure the backend is running on port 8000.`;
+      } else if (e.response?.status === 422) {
+        // FastAPI validation errors
+        const detail = e.response?.data?.detail;
+        console.error('422 Validation Error Detail:', detail);
+        
+        if (Array.isArray(detail)) {
+          // Multiple validation errors - format them nicely
+          const errors = detail.map((err: any) => {
+            const field = err.loc?.slice(1).join('.') || 'field'; // Remove 'body' from path
+            const msg = err.msg || 'Invalid value';
+            return `${field}: ${msg}`;
+          });
+          errorMsg = `Validation error: ${errors.join(', ')}`;
+        } else if (typeof detail === 'string') {
+          errorMsg = detail;
+        } else if (detail && typeof detail === 'object') {
+          errorMsg = JSON.stringify(detail);
+        } else {
+          errorMsg = 'Invalid input. Please ensure:\n- Email is a valid email address\n- Password is at least 6 characters';
+        }
+      } else if (e.response?.data?.detail) {
+        // Single error detail (string or object)
+        const detail = e.response.data.detail;
+        errorMsg = typeof detail === 'string' ? detail : JSON.stringify(detail);
+      } else if (e.message) {
+        errorMsg = e.message;
+      }
+      
+      setMessage(errorMsg);
+      setMessageType('error');
     }
   };
 
@@ -59,11 +138,27 @@ export default function AuthPage() {
             {isLogin ? 'Login' : 'Register'}
           </button>
         </form>
-        {message && <p className="mt-4 text-center text-gray-700">{message}</p>}
+        {message && (
+          <p 
+            className={`mt-4 text-center ${
+              messageType === 'success' 
+                ? 'text-green-600 font-medium' 
+                : messageType === 'error' 
+                ? 'text-red-600 font-medium' 
+                : 'text-gray-700'
+            }`}
+          >
+            {message}
+          </p>
+        )}
         <p className="mt-4 text-sm text-gray-500 text-center">
           {isLogin ? 'Need an account?' : 'Already have an account?'}{' '}
           <button
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => {
+              setIsLogin(!isLogin);
+              setMessage('');
+              setMessageType('');
+            }}
             className="text-blue-500 hover:underline"
           >
             {isLogin ? 'Register' : 'Login'}

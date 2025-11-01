@@ -19,9 +19,15 @@ MONGODB_API_VERSION = os.getenv("MONGODB_API_VERSION")
 app = FastAPI(title="Property CashFlow Dashboard API", version="1.0.0")
 
 # Enable CORS for local frontend
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",  # In case Next.js uses a different port
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
