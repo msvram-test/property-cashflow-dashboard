@@ -92,13 +92,13 @@ export default function PropertiesPage() {
         throw new Error(errorMsg);
       }
       
-      console.log('Fetching properties from:', `${API_URL}/properties/`);
+      console.log('Fetching properties from:', `${API_URL}/properties`);
       console.log('Token length:', token?.length);
       console.log('Token preview:', token ? `${token.substring(0, 20)}...` : 'No token');
       
       // Use same pattern as auth page with timeout
-      console.log('Making request to:', `${API_URL}/properties/`);
-      const { data } = await axios.get(`${API_URL}/properties/`, {
+      console.log('Making request to:', `${API_URL}/properties`);
+      const { data } = await axios.get(`${API_URL}/properties`, {
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
@@ -157,7 +157,7 @@ export default function PropertiesPage() {
     setError(""); // Clear previous errors
     try {
       const token = localStorage.getItem("access_token");
-      const response = await axios.post(`${API_URL}/properties/`, formData, {
+      const response = await axios.post(`${API_URL}/properties`, formData, {
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
