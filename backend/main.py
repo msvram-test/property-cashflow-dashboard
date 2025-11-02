@@ -22,11 +22,12 @@ if MONGODB_URI:
 
 app = FastAPI(title="Property CashFlow Dashboard API", version="1.0.0")
 
-# Enable CORS for local frontend
+# ✅ Enable CORS for both production and local frontend
 origins = [
+    "https://property-cashflow-dashboard.vercel.app",  # Production frontend
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "http://localhost:3001",  # In case Next.js uses a different port
+    "http://localhost:3001",
 ]
 
 app.add_middleware(
