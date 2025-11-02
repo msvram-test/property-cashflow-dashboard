@@ -82,8 +82,10 @@ def health_check():
 
 # Import and include authentication router
 from routers import auth_router, property_router
-app.include_router(auth_router.router)
-app.include_router(property_router.router)
+
+# ✅ Standardize all API routes under /api prefix to align with frontend
+app.include_router(auth_router.router, prefix="/api/auth", tags=["Authentication"])
+app.include_router(property_router.router, prefix="/api/properties", tags=["Properties"])
 
 if __name__ == "__main__":
     import uvicorn

@@ -6,7 +6,7 @@ import os
 from models.user_model import UserCreate, UserInDB, user_to_dict
 from utils.auth_utils import hash_password, verify_password, create_access_token, decode_access_token
 
-router = APIRouter(prefix="/auth", tags=["Authentication"])
+router = APIRouter(tags=["Authentication"])
 
 # Use shared MongoDB client from main.py
 from main import mongo_client

@@ -8,7 +8,7 @@ from utils.auth_utils import get_current_user
 from datetime import datetime
 import os
 
-router = APIRouter(prefix="/properties", tags=["Properties"])
+router = APIRouter(tags=["Properties"])
 
 from main import mongo_client
 
