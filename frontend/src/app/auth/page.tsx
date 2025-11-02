@@ -5,9 +5,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
 // Get API base URL - Next.js client components need NEXT_PUBLIC_ prefix
-const API_BASE = typeof window !== 'undefined' 
-  ? (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000')
-  : 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -20,8 +18,8 @@ export default function AuthPage() {
   // Log API configuration on mount
   React.useEffect(() => {
     console.log('=== API Configuration ===');
-    console.log('API_BASE:', API_BASE);
-    console.log('NEXT_PUBLIC_API_BASE_URL:', process.env.NEXT_PUBLIC_API_BASE_URL);
+    console.log('API_URL:', API_URL);
+    console.log('NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
     console.log('Window location:', typeof window !== 'undefined' ? window.location.href : 'N/A');
     console.log('========================');
   }, []);
@@ -31,11 +29,11 @@ export default function AuthPage() {
     setMessage(''); // Clear previous messages
     setMessageType(''); // Clear message type
     const requestData = { email: email.trim(), password };
-    const url = isLogin ? `${API_BASE}/auth/login` : `${API_BASE}/auth/register`;
+    const url = isLogin ? `${API_URL}/api/auth/login` : `${API_URL}/api/auth/register`;
     
     try {
       console.log('Making request to:', url);
-      console.log('API_BASE:', API_BASE);
+      console.log('API_URL:', API_URL);
       console.log('Sending request data:', { email: requestData.email, passwordLength: requestData.password.length });
       
       if (isLogin) {
@@ -80,7 +78,7 @@ export default function AuthPage() {
       
       let errorMsg = 'An error occurred.';
       if (e.code === 'ERR_NETWORK' || e.message === 'Network Error') {
-        errorMsg = `Cannot connect to backend at ${API_BASE}. Please ensure the backend is running on port 8000.`;
+              errorMsg = `Cannot connect to backend at ${API_URL}. Please ensure the backend is running and reachable.`;
       } else if (e.response?.status === 422) {
         // FastAPI validation errors
         const detail = e.response?.data?.detail;
