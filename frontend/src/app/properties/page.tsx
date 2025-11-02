@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 
 interface Property {
@@ -19,6 +20,7 @@ interface Property {
 }
 
 export default function PropertiesPage() {
+  const router = useRouter();
   const [properties, setProperties] = useState<Property[]>([]);
   const [formData, setFormData] = useState<Property>({
     name: "",
@@ -238,9 +240,69 @@ export default function PropertiesPage() {
     }
   }
 
+  function handleLogout() {
+    localStorage.removeItem("access_token");
+    router.push("/auth");
+  }
+
+  function handleHome() {
+    router.push("/properties");
+    fetchProperties();
+  }
+
   return (
     <main className="p-8">
-      <h1 className="text-3xl font-bold mb-4">Property Management</h1>
+      {/* Header with navigation icons */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Property Management</h1>
+        <div className="flex gap-4">
+          {/* Home Icon Button */}
+          <button
+            onClick={handleHome}
+            className="p-2 rounded-full hover:bg-gray-200 transition-colors"
+            title="Refresh Dashboard"
+            aria-label="Refresh Dashboard"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+              />
+            </svg>
+          </button>
+          
+          {/* Logout Icon Button */}
+          <button
+            onClick={handleLogout}
+            className="p-2 rounded-full hover:bg-red-100 transition-colors"
+            title="Logout"
+            aria-label="Logout"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-6 h-6 text-red-600"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M8.25 9V5.25A2.25 2.25 0 0110.5 3h6a2.25 2.25 0 012.25 2.25v13.5A2.25 2.25 0 0116.5 21h-6a2.25 2.25 0 01-2.25-2.25V15M12 9l3 3m0 0l-3 3m3-3H2.25"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
       <form onSubmit={createProperty} className="space-y-4 mb-8 border p-4 rounded">
         <input
           type="text"
@@ -248,6 +310,19 @@ export default function PropertiesPage() {
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           className="border p-2 w-full"
+          required
+        />
+        <input
+          type="number"
+          placeholder="Purchase Price"
+          value={formData.purchase_price === 0 ? "" : formData.purchase_price}
+          onChange={(e) => {
+            const value = e.target.value === "" ? 0 : parseFloat(e.target.value);
+            setFormData({ ...formData, purchase_price: isNaN(value) ? 0 : value });
+          }}
+          className="border p-2 w-full"
+          min="0"
+          step="0.01"
           required
         />
         <div className="grid grid-cols-2 gap-2">
@@ -290,17 +365,6 @@ export default function PropertiesPage() {
             className="border p-2 w-full"
           />
         </div>
-        <input
-          type="number"
-          placeholder="Purchase Price"
-          value={isNaN(formData.purchase_price) ? "" : formData.purchase_price}
-          onChange={(e) => {
-            const value = e.target.value === "" ? 0 : parseFloat(e.target.value);
-            setFormData({ ...formData, purchase_price: isNaN(value) ? 0 : value });
-          }}
-          className="border p-2 w-full"
-          required
-        />
         <button
           type="submit"
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
@@ -336,7 +400,9 @@ export default function PropertiesPage() {
                 <p className="text-sm text-gray-600">
                   {p.address.street}, {p.address.city}, {p.address.state} {p.address.zip}
                 </p>
-                <p>Purchase Price: ${p.purchase_price}</p>
+                <p className="text-sm font-medium text-gray-700">
+                  Purchase Price: ${(p.purchase_price || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </p>
               </div>
               <button
                 onClick={() => deleteProperty(p._id!)}
