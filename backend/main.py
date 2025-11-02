@@ -25,6 +25,7 @@ app = FastAPI(title="Property CashFlow Dashboard API", version="1.0.0")
 # ✅ Enable CORS for both production and local frontend
 origins = [
     "https://property-cashflow-dashboard.vercel.app",  # Production frontend
+    "https://property-cashflow-dashboard-frontend.vercel.app",  # Alternative Vercel URL
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://localhost:3001",
@@ -33,6 +34,7 @@ origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",  # Allow all Vercel deployments
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
