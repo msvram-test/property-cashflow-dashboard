@@ -35,7 +35,13 @@ def decode_access_token(token: str) -> dict | None:
     """Decode and validate JWT token."""
     try:
         return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    except JWTError:
+    except jwt.ExpiredSignatureError:
+        # Token expired
+        print("[Auth] Token expired.")
+        return {"error": "expired"}
+    except JWTError as e:
+        # Token invalid
+        print(f"[Auth] JWTError: {e}")
         return None
 
 

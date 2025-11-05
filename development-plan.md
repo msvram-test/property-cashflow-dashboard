@@ -1,30 +1,27 @@
 # Development Plan
 
-## Sprint 1 Summary
-- User authentication module implemented
-- Backend JWT-based authentication working
-- Frontend login/register pages functional
+## Current Focus
+Fix Axios 401 Authorization error on dashboard property fetch.
 
-## Sprint 2: Property Management Module ✅
+## Diagnostics & Findings
+- Backend FastAPI routes validated tokens via `get_current_user` using JWTBearer.
+- Frontend correctly included `Authorization: Bearer {token}`.
+- Tokens in localStorage often become invalid if backend `JWT_SECRET_KEY` changes or tokens expire.
+- The error message was ambiguous; frontend repeatedly retried with same invalid token.
 
-**Objectives Completed:**
-1. Created `PropertyModel` in `backend/models/property_model.py` using Pydantic v2 structure (string IDs for MongoDB compatibility)
-2. Implemented CRUD endpoints in `backend/routers/property_router.py` with JWT authentication
-3. Integrated MongoDB operations, following patterns consistent with existing models
-4. Built front-end Property Management page (`frontend/src/app/properties/page.tsx`) with create, list, and delete UX
-5. Connected frontend with backend through JWT-secured API calls
-6. Verified end-to-end CRUD operations post authentication
+## Fix Implemented
+**File Modified:** `backend/utils/auth_utils.py`
+- Enhanced JWT decoding to separately detect expired tokens.
+- Added clear logs: `[Auth] Token expired.` and `[Auth] JWTError: ...`.
+- `decode_access_token` now returns `{"error": "expired"}` for expired tokens to help in identifying session expiration clearly.
 
-**Testing Results:**
-- ✅ View properties list functioning
-- ✅ Create property adds to database
-- ✅ Delete property removes correctly
-- ✅ MongoDB integration stable
-- ✅ Pydantic schema validation errors resolved
+## Next Steps
+1. Restart backend with new changes to load update.
+2. Re-login via frontend to create fresh JWT.
+3. Test `/api/properties` endpoint to confirm 401 resolution.
+4. If verified, commit and push changes per sprint workflow, then delegate deployment.
 
-**Next Steps (Sprint 3 Preview):**
-- Add property analytics (cashflow metrics)
-- Implement property edit (PATCH endpoint in UI)
-- Integrate charts for rental income vs expenses
-
-**Status:** ✅ Sprint 2 complete and verified locally.
+## Status
+✅ Token decoding clarified  
+✅ JWT error handling improved  
+🔄 Awaiting local verification before closing sprint task

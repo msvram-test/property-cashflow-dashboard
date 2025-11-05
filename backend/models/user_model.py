@@ -28,7 +28,7 @@ class UserInDB(UserBase):
     class Config:
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
-        orm_mode = True
+        from_attributes = True  # Pydantic v2 (was orm_mode in v1)
 
 def user_to_dict(user: UserInDB) -> dict:
     return {

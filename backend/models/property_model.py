@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from pydantic import BaseModel, Field
 from bson import ObjectId
 
@@ -21,6 +21,7 @@ class PropertyModel(BaseModel):
     current_value: Optional[float] = Field(default=None, ge=0, description="Current value must be greater than or equal to 0")
     rental_income: Optional[float] = Field(default=0, ge=0, description="Rental income must be greater than or equal to 0")
     expenses: Optional[float] = Field(default=0, ge=0, description="Expenses must be greater than or equal to 0")
+    documents: Optional[List[Dict[str, Any]]] = Field(default=[], description="List of uploaded documents")
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
